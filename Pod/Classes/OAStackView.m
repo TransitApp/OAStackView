@@ -13,7 +13,6 @@
 #import "OAStackViewAlignmentStrategy.h"
 #import "OAStackViewDistributionStrategy.h"
 #import "OATransformLayer.h"
-#import <objc/runtime.h>
 
 @interface OAStackView ()
 @property(nonatomic, strong) NSMutableArray *mutableArrangedSubviews;
@@ -362,22 +361,3 @@
 
 @implementation OAStackViewProxy
 @end
-
-#pragma mark - Runtime Injection
-
-// Constructors are called after all classes have been loaded.
-__attribute__((constructor)) static void OAStackViewPatchEntry(void) {
-
-  if (objc_getClass("UIStackView")) {
-    return;
-  }
-
-  if (objc_getClass("OAStackViewDisableForwardToUIStackViewSentinel")) {
-    return;
-  }
-
-  Class class = objc_allocateClassPair(OAStackView.class, "UIStackView", 0);
-  if (class) {
-    objc_registerClassPair(class);
-  }
-}
